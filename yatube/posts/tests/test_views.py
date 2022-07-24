@@ -53,7 +53,7 @@ class PostsPagesTests(TestCase):
         """URL-адрес использует соответствующий шаблон."""
         self.authorized_client.force_login(self.post.author)
         templates_pages_names = {
-                                reverse('posts:post_edit',
+            reverse('posts:post_edit',
             kwargs={'post_id': 1}): 'posts/create_post.html'}
         for reverse_name, template in templates_pages_names.items():
             with self.subTest(reverse_name=reverse_name):
