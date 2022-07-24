@@ -314,8 +314,7 @@ class PostViewsTest_create_post_in(TestCase):
 
     def test_create_post_in_group_list(self):
         """Проверяем, что созаднный пост, есть на group_list"""
-        response = self.authorized_client.get(
-            reverse('posts:group_list', kwargs={'slug': 'test-slug2'}))
+        response = self.authorized_client.get(reverse('posts:group_list',kwargs={'slug':'test-slug2'}))
         # Взяли первый элемент из списка и проверили, что его содержание
         # совпадает с ожидаемым
         first_object = response.context['page_obj'][0]
@@ -323,8 +322,7 @@ class PostViewsTest_create_post_in(TestCase):
 
     def test_create_post_not_in_group_list(self):
         """Проверяем, что созаднный пост, отсутствует в группе"""
-        response = self.authorized_client.get(
-            reverse('posts:group_list', kwargs={'slug': 'test-slug3'}))
+        response = self.authorized_client.get(reverse('posts:group_list',kwargs={'slug':'test-slug3'}))
         # Взяли первый элемент из списка и проверили, что его содержание
         # совпадает с ожидаемым
         first_object = response.context['page_obj'][0]
@@ -333,8 +331,7 @@ class PostViewsTest_create_post_in(TestCase):
     def test_create_post_in_profile(self):
         """Проверяем, что созаднный пост, есть на profile"""
         self.authorized_client.force_login(self.post_14.author)
-        response = self.authorized_client.get(
-            reverse('posts:profile', kwargs={'username': 'auth2'}))
+        response = self.authorized_client.get(reverse('posts:profile',kwargs={'username': 'auth2'}))
         # Взяли первый элемент из списка и проверили, что его содержание
         # совпадает с ожидаемым
         post_detail_obj = response.context['page_obj'][0]

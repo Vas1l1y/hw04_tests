@@ -8,7 +8,7 @@ TEN = 10
 
 
 def index(request):
-    post_list = Post.objects.select_related('author')
+    post_list = Post.objects.select_related('author', 'group')
     paginator = Paginator(post_list, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -39,7 +39,7 @@ def group_posts(request, slug):
 
 def profile(request, username):
     user = get_object_or_404(User, username=username)
-    post_list = user.posts.select_related('author')
+    post_list = user.posts.select_related('author', 'group')
     paginator = Paginator(post_list, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
