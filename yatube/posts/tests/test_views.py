@@ -356,7 +356,6 @@ class PostViewsTest_create_post_not_in_group(TestCase):
         # Авторизуем пользователя
         self.authorized_client.force_login(self.user)
 
-
     def test_create_post_not_in_group_list(self):
         """Проверяем, что созаднный пост, отсутствует в группе"""
         response = self.authorized_client.get(reverse('posts:group_list',
