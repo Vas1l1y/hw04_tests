@@ -33,12 +33,8 @@ class PostCreateFormTests(TestCase):
     @classmethod
     def tearDownClass(cls):
         super().tearDownClass()
-        # Модуль shutil - библиотека Python с удобными инструментами 
-        # для управления файлами и директориями: 
-        # создание, удаление, копирование, перемещение, изменение папок и файлов
-        # Метод shutil.rmtree удаляет директорию и всё её содержимое
         shutil.rmtree(TEMP_MEDIA_ROOT, ignore_errors=True)
-        
+
     def setUp(self):
         # Создаем неавторизованный клиент
         self.guest_client = Client()
@@ -53,7 +49,7 @@ class PostCreateFormTests(TestCase):
         """Валидная форма создает запись в Post."""
         self.authorized_client.force_login(self.post.author)
         # Подсчитаем количество записей в Post
-        post_count = Post.objects.count()  
+        post_count = Post.objects.count()
         form_data = {
             'text': 'Тестовый текст'
         }
@@ -67,7 +63,7 @@ class PostCreateFormTests(TestCase):
         self.assertRedirects(
             response, reverse('posts:profile', kwargs={'username': 'auth'}))
         # Проверяем, увеличилось ли число постов
-        self.assertEqual(Post.objects.count(), post_count+1)
+        self.assertEqual(Post.objects.count(), post_count + 1)
         # Проверяем, что создалась запись с заданным слагом
         self.assertTrue(
             Post.objects.filter(
@@ -79,7 +75,6 @@ class PostCreateFormTests(TestCase):
         """При отправке валидной формы со страницы редактирования поста
         происходит изменение поста с post_id в базе данных."""
         self.authorized_client.force_login(self.post.author)
-        post_id = PostCreateFormTests.post.id
         form_data = {
             'text': 'Измененный тестовый текст'
         }

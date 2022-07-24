@@ -21,13 +21,12 @@ class PostModelTest(TestCase):
             text='Тестовый пост в котором больше 15 символов',
         )
 
-
     def test_models_have_correct_object_names(self):
         """Проверяем, что у моделей корректно работает __str__."""
         post = PostModelTest.post
         expected_object_name = post.text
         self.assertEqual(expected_object_name, str(post))
-        
+
         group = PostModelTest.group
         expected_object_name = group.title
         self.assertEqual(expected_object_name, str(group))
@@ -42,5 +41,5 @@ class PostModelTest(TestCase):
     def test_group_title(self):
         """Проверяем название группы - title(verbose_name)"""
         group = PostModelTest.group
-        verbose = group._meta.get_field('title').verbose_name 
+        verbose = group._meta.get_field('title').verbose_name
         self.assertEqual(verbose, 'Группа')
