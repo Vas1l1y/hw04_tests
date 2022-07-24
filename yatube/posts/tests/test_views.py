@@ -35,16 +35,15 @@ class PostsPagesTests(TestCase):
 
     def test_urls_uses_correct_template(self):
         """URL-адрес использует соответствующий шаблон."""
-        templates_pages_names  = {
-            reverse('posts:index'):'posts/index.html',
+        templates_pages_names = {
+            reverse('posts:index'): 'posts/index.html',
             reverse('posts:group_list',
-            kwargs={'slug': 'test-slug'}): 'posts/group_list.html',
+                    kwargs={'slug': 'test-slug'}): 'posts/group_list.html',
             reverse('posts:profile',
-            kwargs={'username': 'HasNoName'}): 'posts/profile.html',
+                    kwargs={'username': 'HasNoName'}): 'posts/profile.html',
             reverse('posts:post_detail',
-            kwargs={'post_id': 1}): 'posts/post_detail.html',
-            reverse('posts:post_create'): 'posts/create_post.html'
-        }
+                    kwargs={'post_id': 1}): 'posts/post_detail.html',
+            reverse('posts:post_create'): 'posts/create_post.html'}
         for reverse_name, template in templates_pages_names.items():
             with self.subTest(reverse_name=reverse_name):
                 response = self.authorized_client.get(reverse_name)
@@ -53,10 +52,8 @@ class PostsPagesTests(TestCase):
     def test_urls_post_edit_correct_template(self):
         """URL-адрес использует соответствующий шаблон."""
         self.authorized_client.force_login(self.post.author)
-        templates_pages_names  = {
-            reverse('posts:post_edit',
-            kwargs={'post_id': 1}): 'posts/create_post.html'
-        }
+        templates_pages_names = {reverse('posts:post_edit',
+            kwargs={'post_id': 1}): 'posts/create_post.html'}
         for reverse_name, template in templates_pages_names.items():
             with self.subTest(reverse_name=reverse_name):
                 response = self.authorized_client.get(reverse_name)
@@ -130,12 +127,10 @@ class PostsPagesTests(TestCase):
         # Словарь ожидаемых типов полей формы:
         # указываем, объектами какого класса должны быть поля формы
         form_fields = {
-            # При создании формы поля модели типа TextField            
             'text': forms.fields.CharField,
             'group': forms.fields.ChoiceField,
-        }        
+        }
 
-        # Проверяем, что типы полей формы в словаре context соответствуют ожиданиям
         for value, expected in form_fields.items():
             with self.subTest(value=value):
                 form_field = response.context.get('form').fields.get(value)
@@ -230,7 +225,6 @@ class PaginatorViewsTest(TestCase):
         # Авторизуем пользователя
         self.authorized_client.force_login(self.user)
 
-
     def test_first_page_contains_ten_records_index(self):
         """Проверяем паджинатор первой страницы index
         Проверка: количество постов на первой странице равно 10"""
@@ -254,7 +248,8 @@ class PaginatorViewsTest(TestCase):
         """Проверяем паджинатор второй страницы group_list
         Проверка: на второй странице должно быть 3 поста"""
         response = self.client.get(
-            reverse('posts:group_list', kwargs={'slug': 'test-slug1'}) + '?page=2')
+            reverse('posts:group_list',
+            kwargs={'slug': 'test-slug1'}) + '?page=2')
         self.assertEqual(len(response.context['page_obj']), 3)
 
     def test_first_page_contains_ten_records_profile(self):
@@ -273,7 +268,7 @@ class PaginatorViewsTest(TestCase):
 
 
 class PostViewsTest_create_post_in(TestCase):
-     
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -308,7 +303,7 @@ class PostViewsTest_create_post_in(TestCase):
         self.authorized_client = Client()
         # Авторизуем пользователя
         self.authorized_client.force_login(self.user)
-        
+
     def test_create_post_in_index(self):
         """Проверяем, что созаднный пост, есть на index"""
         response = self.authorized_client.get(reverse('posts:index'))
@@ -320,7 +315,7 @@ class PostViewsTest_create_post_in(TestCase):
     def test_create_post_in_group_list(self):
         """Проверяем, что созаднный пост, есть на group_list"""
         response = self.authorized_client.get(
-            reverse('posts:group_list', kwargs={'slug':'test-slug2'}))
+            reverse('posts:group_list', kwargs={'slug': 'test-slug2'}))
         # Взяли первый элемент из списка и проверили, что его содержание
         # совпадает с ожидаемым
         first_object = response.context['page_obj'][0]
@@ -329,7 +324,7 @@ class PostViewsTest_create_post_in(TestCase):
     def test_create_post_not_in_group_list(self):
         """Проверяем, что созаднный пост, отсутствует в группе"""
         response = self.authorized_client.get(
-            reverse('posts:group_list', kwargs={'slug':'test-slug3'}))
+            reverse('posts:group_list', kwargs={'slug': 'test-slug3'}))
         # Взяли первый элемент из списка и проверили, что его содержание
         # совпадает с ожидаемым
         first_object = response.context['page_obj'][0]

@@ -32,7 +32,7 @@ class PostsURLTests(TestCase):
         )
 
 
-def setUp(self):
+    def setUp(self):
         # Создаем неавторизованный клиент
         self.guest_client = Client()
         # Создаем пользователя
@@ -47,6 +47,7 @@ def setUp(self):
         self.author_client.force_login(self.user)
         # Сделаем автором поста
         self.author_client(self.author)
+
 
 def test_urls_uses_correct_template(self):
     """URL-адрес использует соответствующий шаблон."""
