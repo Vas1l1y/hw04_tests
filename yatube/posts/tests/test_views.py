@@ -151,67 +151,67 @@ class PaginatorViewsTest(TestCase):
         )
         cls.post_1 = Post.objects.create(
             author=cls.user,
-            text='Текст',
+            text='Текст1',
             group=cls.group
         )
         cls.post_2 = Post.objects.create(
             author=cls.user,
-            text='Текст',
+            text='Текст2',
             group=cls.group
         )
         cls.post_3 = Post.objects.create(
             author=cls.user,
-            text='Текст',
+            text='Текст3',
             group=cls.group
         )
         cls.post_4 = Post.objects.create(
             author=cls.user,
-            text='Текст',
+            text='Текст4',
             group=cls.group
         )
         cls.post_5 = Post.objects.create(
             author=cls.user,
-            text='Текст',
+            text='Текст5',
             group=cls.group
         )
         cls.post_6 = Post.objects.create(
             author=cls.user,
-            text='Текст',
+            text='Текст6',
             group=cls.group
         )
         cls.post_7 = Post.objects.create(
             author=cls.user,
-            text='Текст',
+            text='Текст7',
             group=cls.group
         )
         cls.post_8 = Post.objects.create(
             author=cls.user,
-            text='Текст',
+            text='Текст8',
             group=cls.group
         )
         cls.post_9 = Post.objects.create(
             author=cls.user,
-            text='Текст',
+            text='Текст9',
             group=cls.group
         )
         cls.post_10 = Post.objects.create(
             author=cls.user,
-            text='Текст',
+            text='Текст10',
             group=cls.group
         )
         cls.post_11 = Post.objects.create(
             author=cls.user,
-            text='Текст',
+            text='Текст11',
             group=cls.group
         )
         cls.post_12 = Post.objects.create(
             author=cls.user,
-            text='Текст',
+            text='Текст12',
             group=cls.group
         )
         cls.post_13 = Post.objects.create(
             author=cls.user,
-            text='Текст',
+            text='Текст13',
             group=cls.group
         )
 
@@ -278,20 +278,10 @@ class PostViewsTest_create_post_in(TestCase):
             slug='test-slug2',
             description='Тестовое описание',
         )
-        cls.group_2 = Group.objects.create(
-            title='Заголовок',
-            slug='test-slug3',
-            description='Тестовое описание',
-        )
         cls.post = Post.objects.create(
             author=cls.user,
-            text='Текст',
+            text='Это текст должен быть в тестах',
             group=cls.group,
-        )
-        cls.post_54 = Post.objects.create(
-            author=cls.user,
-            text='Текст',
-            group=cls.group_2,
         )
 
     def setUp(self):
@@ -313,15 +303,6 @@ class PostViewsTest_create_post_in(TestCase):
         first_object = response.context['page_obj'][0]
         self.assertEqual(self.post, first_object)
 
-    def test_create_post_not_in_group_list(self):
-        """Проверяем, что созаднный пост, отсутствует в группе"""
-        response = self.authorized_client.get(reverse('posts:group_list',
-                                              kwargs={'slug': 'test-slug3'}))
-        # Взяли первый элемент из списка и проверили, что его содержание
-        # совпадает с ожидаемым
-        first_object = response.context['page_obj'][0]
-        self.assertNotEqual(self.post, first_object)
-
     def test_create_post_in_index(self):
         """Проверяем, что созаднный пост, есть на index"""
         response = self.authorized_client.get(reverse('posts:index'))
@@ -337,3 +318,50 @@ class PostViewsTest_create_post_in(TestCase):
                                               kwargs={'username': 'auth2'}))
         post_detail_obj = response.context['page_obj'][0]
         self.assertEqual(self.post, post_detail_obj)
+
+
+class PostViewsTest_create_post_not_in_group(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.user = User.objects.create_user(username='auth3')
+        cls.group = Group.objects.create(
+            title='Заголовок',
+            slug='test-slug2',
+            description='Тестовое описание',
+        )
+        cls.group_2 = Group.objects.create(
+            title='Заголовок',
+            slug='test-slug3',
+            description='Тестовое описание',
+        )
+        cls.post = Post.objects.create(
+            author=cls.user,
+            text='Это текст должен быть в тестах',
+            group=cls.group,
+        )
+        cls.post_54 = Post.objects.create(
+            author=cls.user,
+            text='Может этот',
+            group=cls.group_2,
+        )
+
+    def setUp(self):
+        # Создаем неавторизованный клиент
+        self.guest_client = Client()
+        # Создаем пользователя
+        self.user = User.objects.create_user(username='Vasyan')
+        # Создаем второй клиент
+        self.authorized_client = Client()
+        # Авторизуем пользователя
+        self.authorized_client.force_login(self.user)
+
+
+    def test_create_post_not_in_group_list(self):
+        """Проверяем, что созаднный пост, отсутствует в группе"""
+        response = self.authorized_client.get(reverse('posts:group_list',
+                                              kwargs={'slug': 'test-slug3'}))
+        # Взяли первый элемент из списка и проверили, что его содержание
+        # совпадает с ожидаемым
+        first_object = response.context['page_obj'][0]
+        self.assertNotEqual(self.post, first_object)
