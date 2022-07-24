@@ -283,7 +283,7 @@ class PostViewsTest_create_post_in(TestCase):
             slug='test-slug3',
             description='Тестовое описание',
         )
-        cls.post_14 = Post.objects.create(
+        cls.post = Post.objects.create(
             author=cls.user,
             text='Текст',
             group=cls.group,
@@ -304,35 +304,41 @@ class PostViewsTest_create_post_in(TestCase):
         # Авторизуем пользователя
         self.authorized_client.force_login(self.user)
 
+    def test_create_post_in_group_list(self):
+        """Проверяем, что созаднный пост, есть на group_list"""
+        response = self.authorized_client.get(
+            reverse('posts:group_list',
+            kwargs={'slug':'test-slug2'}))
+        # Взяли первый элемент из списка и проверили, что его содержание
+        # совпадает с ожидаемым
+        first_object = response.context['page_obj'][0]
+        self.assertEqual(self.post, first_object)
+
+    def test_create_post_not_in_group_list(self):
+        """Проверяем, что созаднный пост, отсутствует в группе"""
+        response = self.authorized_client.get(
+            reverse('posts:group_list',
+            kwargs={'slug':'test-slug3'}))
+        # Взяли первый элемент из списка и проверили, что его содержание
+        # совпадает с ожидаемым
+        first_object = response.context['page_obj'][0]
+        self.assertNotEqual(self.post, first_object)
+
     def test_create_post_in_index(self):
         """Проверяем, что созаднный пост, есть на index"""
         response = self.authorized_client.get(reverse('posts:index'))
         # Взяли первый элемент из списка и проверили, что его содержание
         # совпадает с ожидаемым
         first_object = response.context['page_obj'][0]
-        self.assertEqual(self.post_14, first_object)
-
-    def test_create_post_in_group_list(self):
-        """Проверяем, что созаднный пост, есть на group_list"""
-        response = self.authorized_client.get(reverse('posts:group_list',kwargs={'slug':'test-slug2'}))
-        # Взяли первый элемент из списка и проверили, что его содержание
-        # совпадает с ожидаемым
-        first_object = response.context['page_obj'][0]
-        self.assertEqual(self.post_14, first_object)
-
-    def test_create_post_not_in_group_list(self):
-        """Проверяем, что созаднный пост, отсутствует в группе"""
-        response = self.authorized_client.get(reverse('posts:group_list',kwargs={'slug':'test-slug3'}))
-        # Взяли первый элемент из списка и проверили, что его содержание
-        # совпадает с ожидаемым
-        first_object = response.context['page_obj'][0]
-        self.assertNotEqual(self.post_14, first_object)
+        self.assertEqual(self.post, first_object)
 
     def test_create_post_in_profile(self):
         """Проверяем, что созаднный пост, есть на profile"""
-        self.authorized_client.force_login(self.post_14.author)
-        response = self.authorized_client.get(reverse('posts:profile',kwargs={'username': 'auth2'}))
+        self.authorized_client.force_login(self.post.author)
+        response = self.authorized_client.get(
+                            reverse('posts:profile',
+                            kwargs={'username': 'auth2'}))
         # Взяли первый элемент из списка и проверили, что его содержание
         # совпадает с ожидаемым
         post_detail_obj = response.context['page_obj'][0]
-        self.assertEqual(self.post_14, post_detail_obj)
+        self.assertEqual(self.post, post_detail_obj)
