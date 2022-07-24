@@ -31,7 +31,6 @@ class PostsURLTests(TestCase):
             text='Тестовый пост в котором больше 15 символов',
         )
 
-
     def setUp(self):
         # Создаем неавторизованный клиент
         self.guest_client = Client()

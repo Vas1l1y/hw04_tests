@@ -52,9 +52,10 @@ class PostsPagesTests(TestCase):
     def test_urls_post_edit_correct_template(self):
         """URL-адрес использует соответствующий шаблон."""
         self.authorized_client.force_login(self.post.author)
-        templates_pages_names = {reverse('posts:post_edit',
-            kwargs={'post_id': 1}): 'posts/create_post.html'}
-        for reverse_name, template in templates_pages_names.items():
+        templ_page_name = {
+            reverse('posts:post_edit',
+                    kwargs={'post_id': 1}): 'posts/create_post.html'}
+        for reverse_name, template in templ_page_name.items():
             with self.subTest(reverse_name=reverse_name):
                 response = self.authorized_client.get(reverse_name)
                 self.assertTemplateUsed(response, template)
@@ -105,7 +106,6 @@ class PostsPagesTests(TestCase):
         # Словарь ожидаемых типов полей формы:
         # указываем, объектами какого класса должны быть поля формы
         form_fields = {
-            # При создании формы поля модели типа TextField            
             'text': forms.fields.CharField,
             'group': forms.fields.ChoiceField,
         }
@@ -247,9 +247,9 @@ class PaginatorViewsTest(TestCase):
     def test_second_page_contains_three_records_group_list(self):
         """Проверяем паджинатор второй страницы group_list
         Проверка: на второй странице должно быть 3 поста"""
-        response = self.client.get(
-            reverse('posts:group_list',
-            kwargs={'slug': 'test-slug1'}) + '?page=2')
+        response = self.client.get(reverse('posts:group_list',
+                                   kwargs={'slug': 'test-slug1'})
+                                   + '?page=2')
         self.assertEqual(len(response.context['page_obj']), 3)
 
     def test_first_page_contains_ten_records_profile(self):
