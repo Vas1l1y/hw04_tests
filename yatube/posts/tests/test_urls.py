@@ -3,32 +3,22 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase, Client
 from ..models import Post, Group
 
-User = get_user_model
+User = get_user_model()
 
-
-class StaticURLTests(TestCase):
-    def test_homepage(self):
-        # Создаем экземпляр клиента
-        guest_client = Client()
-        # Делаем запрос к главной странице и проверяем статус
-        response = guest_client.get('/')
-        # Утверждаем, что для прохождения теста код должен быть равен 200
-        self.assertEqual(response.status_code, 200)
-
-
-class PostsURLTests(TestCase):
+class PostURLTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
         cls.user = User.objects.create_user(username='auth')
         cls.group = Group.objects.create(
-            title='Тестовая группа',
-            slug='Тестовый слаг',
+            title='Заголовок',
+            slug='test',
             description='Тестовое описание',
         )
         cls.post = Post.objects.create(
             author=cls.user,
-            text='Тестовый пост в котором больше 15 символов',
+            text='Текст',
+            group=cls.group
         )
 
     def setUp(self):
@@ -40,31 +30,71 @@ class PostsURLTests(TestCase):
         self.authorized_client = Client()
         # Авторизуем пользователя
         self.authorized_client.force_login(self.user)
-        # Создадим третий клиент
-        self.author_client = Client()
-        # Авторизуем третий клиент
-        self.author_client.force_login(self.user)
-        # Сделаем автором поста
-        self.author_client(self.author)
 
+    def test_url_available_for_everyone(self):
+        """Адреса доступные всем пользователям"""
+        templates_url_names = {
+            '': 200,
+            '/group/test/': 200,
+            '/profile/HasNoName/': 200,
+            '/posts/1/': 200,
+            '/unexisting_page/': 404,
+            }
+        for address, code in templates_url_names.items():
+            with self.subTest(address=address):
+                response = self.guest_client.get(address)
+                self.assertEqual(response.status_code, code)
+    
+    def test_create_url_available_for_authorized(self):
+        """Адрес create доступен авторизованным пользователям"""
+        response = self.authorized_client.get('/create/')
+        self.assertEqual(response.status_code, 200)
+    
+    def test_create_url_redirect_anonymous(self):
+        """Страница create перенаправляет анонимного пользователя"""
+        response = self.guest_client.get('/create/')
+        self.assertEqual(response.status_code, 302)
 
-def test_urls_uses_correct_template(self):
-    """URL-адрес использует соответствующий шаблон."""
-    templates_url_names = {
-        '': 'posts/index.html',
-        'group/<slug>/': 'posts/group_list.html',
-        'profile/<str:username>/': 'posts/profile.html',
-        'posts/<int:post_id>/edit/': 'posts/create_post.html',
-        'posts/<int:post_id>/': 'posts/post_detail.html',
-        'create/': 'posts/create_post.html',
-        'crush/': 'posts/crush.html'
-    }
-    for address, template in templates_url_names.items():
-        with self.subTest(address=address):
-            response = self.authorized_client.get(address)
-            self.assertTemplateUsed(response, template)
+    def test_edit_url_redirect_anonymous(self):
+        """Страница edit перенаправляет анонимного пользователя"""
+        response = self.guest_client.get('/posts/1/edit/')
+        self.assertEqual(response.status_code, 302)
 
-    for address, template in templates_url_names.items():
-        with self.subTest(address=address):
-            response = self.author_client.get(address)
-            self.assertTemplateUsed(response, template)
+    def test_edit_url_redirect_authorized_non_author(self):
+        """Страница edit перенаправляет авторизованного
+        пользователя, не является автором"""
+        response = self.authorized_client.get('/posts/1/edit/')
+        self.assertEqual(response.status_code, 302)
+
+    def test_edit_url_available_for_author(self):
+        """Адрес edit доступен автору"""
+        # Делаем авторизованного пользователя автором поста
+        self.authorized_client.force_login(self.post.author)
+        response = self.authorized_client.get('/posts/1/edit/')
+        self.assertEqual(response.status_code, 200)
+
+# Тест переписан как subtest 
+# def test_home_url_exists_at_desired_location(self):
+    #     """Страница index доступна любому пользователю."""
+    #     response = self.guest_client.get('')
+    #     self.assertEqual(response.status_code, 200)
+
+    # def test_group_url_exists_at_desired_location(self):
+    #     """Страница group_list доступна любому пользователю."""
+    #     response = self.guest_client.get('/group/test/')
+    #     self.assertEqual(response.status_code, 200)
+
+    # def test_profile_url_exists_at_desired_location(self):
+    #     """Страница profile доступна любому пользователю."""
+    #     response = self.guest_client.get('/profile/HasNoName/')
+    #     self.assertEqual(response.status_code, 200)
+        
+    # def test_post_detail_url_exists_at_desired_location(self):
+    #     """Страница post_detail доступна любому пользователю."""
+    #     response = self.guest_client.get('/posts/1/')
+    #     self.assertEqual(response.status_code, 200)
+
+    # def test_url_unexist_page_at_desired_location(self):
+    #     """Несуществующая страница возвращает 404"""
+    #     response = self.guest_client.get('/unexisting_page/')
+    #     self.assertEqual(response.status_code, 404)
