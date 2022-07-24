@@ -5,6 +5,7 @@ from ..models import Post, Group
 
 User = get_user_model()
 
+
 class PostURLTests(TestCase):
     @classmethod
     def setUpClass(cls):
@@ -38,18 +39,17 @@ class PostURLTests(TestCase):
             '/group/test/': 200,
             '/profile/HasNoName/': 200,
             '/posts/1/': 200,
-            '/unexisting_page/': 404,
-            }
+            '/unexisting_page/': 404}
         for address, code in templates_url_names.items():
             with self.subTest(address=address):
                 response = self.guest_client.get(address)
                 self.assertEqual(response.status_code, code)
-    
+
     def test_create_url_available_for_authorized(self):
         """Адрес create доступен авторизованным пользователям"""
         response = self.authorized_client.get('/create/')
         self.assertEqual(response.status_code, 200)
-    
+
     def test_create_url_redirect_anonymous(self):
         """Страница create перенаправляет анонимного пользователя"""
         response = self.guest_client.get('/create/')
@@ -72,29 +72,3 @@ class PostURLTests(TestCase):
         self.authorized_client.force_login(self.post.author)
         response = self.authorized_client.get('/posts/1/edit/')
         self.assertEqual(response.status_code, 200)
-
-# Тест переписан как subtest 
-# def test_home_url_exists_at_desired_location(self):
-    #     """Страница index доступна любому пользователю."""
-    #     response = self.guest_client.get('')
-    #     self.assertEqual(response.status_code, 200)
-
-    # def test_group_url_exists_at_desired_location(self):
-    #     """Страница group_list доступна любому пользователю."""
-    #     response = self.guest_client.get('/group/test/')
-    #     self.assertEqual(response.status_code, 200)
-
-    # def test_profile_url_exists_at_desired_location(self):
-    #     """Страница profile доступна любому пользователю."""
-    #     response = self.guest_client.get('/profile/HasNoName/')
-    #     self.assertEqual(response.status_code, 200)
-        
-    # def test_post_detail_url_exists_at_desired_location(self):
-    #     """Страница post_detail доступна любому пользователю."""
-    #     response = self.guest_client.get('/posts/1/')
-    #     self.assertEqual(response.status_code, 200)
-
-    # def test_url_unexist_page_at_desired_location(self):
-    #     """Несуществующая страница возвращает 404"""
-    #     response = self.guest_client.get('/unexisting_page/')
-    #     self.assertEqual(response.status_code, 404)
