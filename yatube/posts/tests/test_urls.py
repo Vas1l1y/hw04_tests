@@ -31,6 +31,9 @@ class PostURLTests(TestCase):
         self.authorized_client = Client()
         # Авторизуем пользователя
         self.authorized_client.force_login(self.user)
+        self.author_client = Client()
+        self.author_client.force_login(self.user)
+        self.author_client.force_login(self.post.author)
 
     def test_url_available_for_everyone(self):
         """Адреса доступные всем пользователям"""
@@ -45,30 +48,28 @@ class PostURLTests(TestCase):
                 response = self.guest_client.get(address)
                 self.assertEqual(response.status_code, code)
 
-    def test_create_url_available_for_authorized(self):
-        """Адрес create доступен авторизованным пользователям"""
-        response = self.authorized_client.get('/create/')
-        self.assertEqual(response.status_code, 200)
+    def test_url_available_and_redirect(self):
+        """Проверка доступности адресов и перенаправления"""
+        # Натан, я попробую реализовать твои рекомендации
+        templates_url_guest_client = {
+            '/create/': 302,
+            '/posts/1/edit/': 302}
+        for address, code in templates_url_guest_client.items():
+            with self.subTest(address=address):
+                response = self.guest_client.get(address)
+                self.assertEqual(response.status_code, code)
 
-    def test_create_url_redirect_anonymous(self):
-        """Страница create перенаправляет анонимного пользователя"""
-        response = self.guest_client.get('/create/')
-        self.assertEqual(response.status_code, 302)
+        templates_url_authorized_client = {
+            '/create/': 200,
+            '/posts/1/edit/': 302}
+        for address, code in templates_url_authorized_client.items():
+            with self.subTest(address=address):
+                response = self.authorized_client.get(address)
+                self.assertEqual(response.status_code, code)
 
-    def test_edit_url_redirect_anonymous(self):
-        """Страница edit перенаправляет анонимного пользователя"""
-        response = self.guest_client.get('/posts/1/edit/')
-        self.assertEqual(response.status_code, 302)
-
-    def test_edit_url_redirect_authorized_non_author(self):
-        """Страница edit перенаправляет авторизованного
-        пользователя, не является автором"""
-        response = self.authorized_client.get('/posts/1/edit/')
-        self.assertEqual(response.status_code, 302)
-
-    def test_edit_url_available_for_author(self):
-        """Адрес edit доступен автору"""
-        # Делаем авторизованного пользователя автором поста
-        self.authorized_client.force_login(self.post.author)
-        response = self.authorized_client.get('/posts/1/edit/')
-        self.assertEqual(response.status_code, 200)
+        templates_url_author = {
+            '/posts/1/edit/': 200}
+        for address, code in templates_url_author.items():
+            with self.subTest(address=address):
+                response = self.author_client.get(address)
+                self.assertEqual(response.status_code, code)

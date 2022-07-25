@@ -24,22 +24,21 @@ class PostModelTest(TestCase):
     def test_models_have_correct_object_names(self):
         """Проверяем, что у моделей корректно работает __str__."""
         post = PostModelTest.post
-        expected_object_name = post.text
-        self.assertEqual(expected_object_name, str(post))
+        post_cut = post.text[:15]
+        self.assertEqual(post_cut, str(post)[:15])
 
         group = PostModelTest.group
         expected_object_name = group.title
         self.assertEqual(expected_object_name, str(group))
 
-    def test_post_cut_fifteen(self):
-        """Проверяем первые 15 символов поста"""
+    def test_verbose_name(self):
+        """verbose_name в полях совпадает с ожидаемым."""
         post = PostModelTest.post
-        post_cut = post.text[:15]
-        expected_text = 'Тестовый пост в'
-        self.assertEqual(post_cut, expected_text)
-
-    def test_group_title(self):
-        """Проверяем название группы - title(verbose_name)"""
-        group = PostModelTest.group
-        verbose = group._meta.get_field('title').verbose_name
-        self.assertEqual(verbose, 'Группа')
+        field_verboses = {
+            'text': 'Текст поста',
+            'group': 'Группа'
+        }
+        for field, expected_value in field_verboses.items():
+            with self.subTest(field=field):
+                self.assertEqual(
+                    post._meta.get_field(field).verbose_name, expected_value)

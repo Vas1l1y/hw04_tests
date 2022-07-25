@@ -44,10 +44,10 @@ class PostCreateFormTests(TestCase):
         self.authorized_client = Client()
         # Авторизуем пользователя
         self.authorized_client.force_login(self.user)
+        self.author = self.authorized_client.force_login(self.post.author)
 
     def test_create_post(self):
         """Валидная форма создает запись в Post."""
-        self.authorized_client.force_login(self.post.author)
         # Подсчитаем количество записей в Post
         post_count = Post.objects.count()
         form_data = {
@@ -74,7 +74,6 @@ class PostCreateFormTests(TestCase):
     def test_edit_post(self):
         """При отправке валидной формы со страницы редактирования поста
         происходит изменение поста с post_id в базе данных."""
-        self.authorized_client.force_login(self.post.author)
         form_data = {
             'text': 'Измененный тестовый текст'
         }
@@ -88,5 +87,26 @@ class PostCreateFormTests(TestCase):
         self.assertTrue(
             Post.objects.filter(
                 text='Измененный тестовый текст'
+            ).exists()
+        )
+
+    def test_no_create_post_anonymous(self):
+        """Незарегистрированный пользователь не может создать пост"""
+        # Подсчитаем количество записей в Post
+        post_count = Post.objects.count()
+        form_data = {
+            'text': 'Пост анонимного пользователя'
+        }
+        # Отправляем POST-запрос
+        response = self.guest_client.post(
+            reverse('posts:post_create'),
+            data=form_data,
+            follow=True
+        )
+        self.assertEqual(Post.objects.count(), post_count)
+        # Проверяем, что запись не создалась
+        self.assertFalse(
+            Post.objects.filter(
+                text='Пост анонимного пользователя'
             ).exists()
         )

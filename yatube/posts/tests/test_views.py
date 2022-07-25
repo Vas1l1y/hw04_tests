@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
 from django import forms
+from itertools import islice
 
 from posts.models import Post, Group
 
@@ -32,6 +33,7 @@ class PostsPagesTests(TestCase):
         self.authorized_client = Client()
         # Авторизуем пользователя
         self.authorized_client.force_login(self.user)
+        self.author = self.authorized_client.force_login(self.post.author)
 
     def test_urls_uses_correct_template(self):
         """URL-адрес использует соответствующий шаблон."""
@@ -149,71 +151,23 @@ class PaginatorViewsTest(TestCase):
             slug='test-slug1',
             description='Тестовое описание'
         )
-        cls.post_1 = Post.objects.create(
-            author=cls.user,
-            text='Текст1',
-            group=cls.group
-        )
-        cls.post_2 = Post.objects.create(
-            author=cls.user,
-            text='Текст2',
-            group=cls.group
-        )
-        cls.post_3 = Post.objects.create(
-            author=cls.user,
-            text='Текст3',
-            group=cls.group
-        )
-        cls.post_4 = Post.objects.create(
-            author=cls.user,
-            text='Текст4',
-            group=cls.group
-        )
-        cls.post_5 = Post.objects.create(
-            author=cls.user,
-            text='Текст5',
-            group=cls.group
-        )
-        cls.post_6 = Post.objects.create(
-            author=cls.user,
-            text='Текст6',
-            group=cls.group
-        )
-        cls.post_7 = Post.objects.create(
-            author=cls.user,
-            text='Текст7',
-            group=cls.group
-        )
-        cls.post_8 = Post.objects.create(
-            author=cls.user,
-            text='Текст8',
-            group=cls.group
-        )
-        cls.post_9 = Post.objects.create(
-            author=cls.user,
-            text='Текст9',
-            group=cls.group
-        )
-        cls.post_10 = Post.objects.create(
-            author=cls.user,
-            text='Текст10',
-            group=cls.group
-        )
-        cls.post_11 = Post.objects.create(
-            author=cls.user,
-            text='Текст11',
-            group=cls.group
-        )
-        cls.post_12 = Post.objects.create(
-            author=cls.user,
-            text='Текст12',
-            group=cls.group
-        )
-        cls.post_13 = Post.objects.create(
-            author=cls.user,
-            text='Текст13',
-            group=cls.group
-        )
+        cls.post = [
+            (Post(author=cls.user, text='Текст1', group=cls.group)),
+            (Post(author=cls.user, text='Текст2', group=cls.group)),
+            (Post(author=cls.user, text='Текст3', group=cls.group)),
+            (Post(author=cls.user, text='Текст4', group=cls.group)),
+            (Post(author=cls.user, text='Текст5', group=cls.group)),
+            (Post(author=cls.user, text='Текст6', group=cls.group)),
+            (Post(author=cls.user, text='Текст7', group=cls.group)),
+            (Post(author=cls.user, text='Текст8', group=cls.group)),
+            (Post(author=cls.user, text='Текст9', group=cls.group)),
+            (Post(author=cls.user, text='Текст10', group=cls.group)),
+            (Post(author=cls.user, text='Текст11', group=cls.group)),
+            (Post(author=cls.user, text='Текст12', group=cls.group)),
+            (Post(author=cls.user, text='Текст13', group=cls.group))
+           ]
+        Post.objects.bulk_create(cls.post)
+
 
     def setUp(self):
         # Создаем неавторизованный клиент
@@ -234,7 +188,7 @@ class PaginatorViewsTest(TestCase):
     def test_second_page_contains_three_records_index(self):
         """Проверяем паджинатор второй страницы index
         Проверка: на второй странице должно быть 3 поста"""
-        response = self.client.get(reverse('posts:index') + '?page=2')
+        response = self.client.get('', {'page': 2})
         self.assertEqual(len(response.context['page_obj']), 3)
 
     def test_first_page_contains_ten_records_group_list(self):
@@ -248,7 +202,7 @@ class PaginatorViewsTest(TestCase):
         """Проверяем паджинатор второй страницы group_list
         Проверка: на второй странице должно быть 3 поста"""
         response = self.client.get(reverse('posts:group_list',
-                                   kwargs={'slug': 'test-slug1'})
+                                   kwargs={'slug': 'test-slug1',})
                                    + '?page=2')
         self.assertEqual(len(response.context['page_obj']), 3)
 
