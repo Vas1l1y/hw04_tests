@@ -98,8 +98,7 @@ class PostCreateFormTests(TestCase):
             'text': 'Пост анонимного пользователя'
         }
         # Отправляем POST-запрос
-        response = self.guest_client.post(
-            reverse('posts:post_create'),
+        self.guest_client.post(reverse('posts:post_create'),
             data=form_data,
             follow=True
         )

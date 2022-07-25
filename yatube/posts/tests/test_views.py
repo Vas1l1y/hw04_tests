@@ -2,7 +2,6 @@ from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
 from django import forms
-from itertools import islice
 
 from posts.models import Post, Group
 
@@ -164,10 +163,8 @@ class PaginatorViewsTest(TestCase):
             (Post(author=cls.user, text='Текст10', group=cls.group)),
             (Post(author=cls.user, text='Текст11', group=cls.group)),
             (Post(author=cls.user, text='Текст12', group=cls.group)),
-            (Post(author=cls.user, text='Текст13', group=cls.group))
-           ]
+            (Post(author=cls.user, text='Текст13', group=cls.group))]
         Post.objects.bulk_create(cls.post)
-
 
     def setUp(self):
         # Создаем неавторизованный клиент
@@ -202,7 +199,7 @@ class PaginatorViewsTest(TestCase):
         """Проверяем паджинатор второй страницы group_list
         Проверка: на второй странице должно быть 3 поста"""
         response = self.client.get(reverse('posts:group_list',
-                                   kwargs={'slug': 'test-slug1',})
+                                   kwargs={'slug': 'test-slug1'})
                                    + '?page=2')
         self.assertEqual(len(response.context['page_obj']), 3)
 
