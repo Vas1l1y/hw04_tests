@@ -100,8 +100,7 @@ class PostCreateFormTests(TestCase):
         # Отправляем POST-запрос
         self.guest_client.post(reverse('posts:post_create'),
             data=form_data,
-            follow=True
-        )
+            follow=True)
         self.assertEqual(Post.objects.count(), post_count)
         # Проверяем, что запись не создалась
         self.assertFalse(
