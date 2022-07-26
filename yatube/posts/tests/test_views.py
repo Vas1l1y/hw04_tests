@@ -156,7 +156,7 @@ class PaginatorViewsTest(TestCase):
                 author=cls.user,
                 group=cls.group
             )
-        
+
     def setUp(self):
         # Создаем неавторизованный клиент
         self.guest_client = Client()
