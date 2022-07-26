@@ -150,22 +150,13 @@ class PaginatorViewsTest(TestCase):
             slug='test-slug1',
             description='Тестовое описание'
         )
-        cls.post = [
-            (Post(author=cls.user, text='Текст1', group=cls.group)),
-            (Post(author=cls.user, text='Текст2', group=cls.group)),
-            (Post(author=cls.user, text='Текст3', group=cls.group)),
-            (Post(author=cls.user, text='Текст4', group=cls.group)),
-            (Post(author=cls.user, text='Текст5', group=cls.group)),
-            (Post(author=cls.user, text='Текст6', group=cls.group)),
-            (Post(author=cls.user, text='Текст7', group=cls.group)),
-            (Post(author=cls.user, text='Текст8', group=cls.group)),
-            (Post(author=cls.user, text='Текст9', group=cls.group)),
-            (Post(author=cls.user, text='Текст10', group=cls.group)),
-            (Post(author=cls.user, text='Текст11', group=cls.group)),
-            (Post(author=cls.user, text='Текст12', group=cls.group)),
-            (Post(author=cls.user, text='Текст13', group=cls.group))]
-        Post.objects.bulk_create(cls.post)
-
+        for i in range(13):
+            cls.post = Post.objects.create(
+                text=str(i) + '. Текст 1',
+                author=cls.user,
+                group=cls.group
+            )
+        
     def setUp(self):
         # Создаем неавторизованный клиент
         self.guest_client = Client()
